@@ -1,0 +1,9 @@
+{
+	"name": "healthcare-insurance-adf",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4361fceb-0f25-4e58-bad7-2525c8248da7",
+		"tenantId": "7a05782a-e455-4796-8884-fe4cbf4f2da6"
+	}
+}

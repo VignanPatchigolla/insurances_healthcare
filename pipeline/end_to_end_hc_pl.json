@@ -1,0 +1,49 @@
+{
+	"name": "end_to_end_hc_pl",
+	"properties": {
+		"activities": [
+			{
+				"name": "extract_data",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "emr_src_bronze_pipeline",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "load_data",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "extract_data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "silver_layer_gold_layer",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-02-08T12:07:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

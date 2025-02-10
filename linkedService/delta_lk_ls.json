@@ -1,0 +1,20 @@
+{
+	"name": "delta_lk_ls",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricksDeltaLake",
+		"typeProperties": {
+			"domain": "https://adb-3239671616707149.9.azuredatabricks.net",
+			"clusterId": "0208-053005-rfwii4q4",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "akv_ls",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "databrciksToken"
+			}
+		}
+	}
+}

@@ -1,0 +1,319 @@
+{
+	"name": "copy_from_emr",
+	"properties": {
+		"activities": [
+			{
+				"name": "If Condition",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(pipeline().parameters.load_type,'Full')\n",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "fetching_file",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureDatabricksDeltaLakeSource",
+									"query": {
+										"value": "@concat('select coalesce(cast(max(load_date) as date),''','1900-01-01',''') as last_date_fetched from healthcare_insurance.audit.logs_table where ','data_source = ''',pipeline().parameters.datasource,''' and table_name=''',pipeline().parameters.tablename,'''')",
+										"type": "Expression"
+									}
+								},
+								"dataset": {
+									"referenceName": "delta_lk_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"database_name": "'hjcnij'",
+										"table_name": "'cswni'"
+									}
+								}
+							}
+						},
+						{
+							"name": "insert_logs_incr_load",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "incremental_load",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureDatabricksDeltaLakeSource",
+									"query": {
+										"value": "@concat('insert into healthcare_insurance.audit.logs_table(data_source,table_name,num_of_rows_copied,watermark_col_name,load_date) values (''', pipeline().parameters.datasource,''',''',pipeline().parameters.tablename,''',''',activity('incremental_load').output.rowscopied,''',''',pipeline().parameters.watermark,''',''',utcNow(),''')')",
+										"type": "Expression"
+									}
+								},
+								"dataset": {
+									"referenceName": "delta_lk_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"database_name": "'acs'",
+										"table_name": "'acsc'"
+									}
+								}
+							}
+						},
+						{
+							"name": "incremental_load",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "fetching_file",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@concat('select *,''',pipeline().parameters.datasource,''' as datasource from ', pipeline().parameters.tablename, ' where ',pipeline().parameters.watermark,' >= ''',activity('fetching_file').output.firstRow.last_date_fetched,'''')",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "sql_db_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema_name": {
+											"value": "@split(pipeline().parameters.tablename,'.')[0]",
+											"type": "Expression"
+										},
+										"table_name": {
+											"value": "@split(pipeline().parameters.tablename,'.')[1]",
+											"type": "Expression"
+										},
+										"db_name": {
+											"value": "@pipeline().parameters.database",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "adls_parquet_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"container_name": "bronze",
+										"folder_name": {
+											"value": "@pipeline().parameters.targetpath",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@split(pipeline().parameters.tablename,'.')[1]",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "full_load",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@concat('select * ,''',pipeline().parameters.datasource,''' as datasource from ',pipeline().parameters.tablename)",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "sql_db_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema_name": {
+											"value": "@split(pipeline().parameters.tablename,'.')[0]",
+											"type": "Expression"
+										},
+										"table_name": {
+											"value": "@split(pipeline().parameters.tablename,'.')[1]",
+											"type": "Expression"
+										},
+										"db_name": {
+											"value": "@pipeline().parameters.database",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "adls_parquet_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"container_name": "bronze",
+										"folder_name": {
+											"value": "@pipeline().parameters.targetpath",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@split(pipeline().parameters.tablename,'.')[1]",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "insert_logs_full_load",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "full_load",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureDatabricksDeltaLakeSource",
+									"query": {
+										"value": "@concat('insert into healthcare_insurance.audit.logs_table(data_source,table_name,num_of_rows_copied,watermark_col_name,load_date) values(''',pipeline().parameters.datasource,''',''',pipeline().parameters.tablename,''',''',activity('full_load').output.rowscopied,''',''',pipeline().parameters.watermark,''',''',utcNow(),''')')",
+										"type": "Expression"
+									}
+								},
+								"dataset": {
+									"referenceName": "delta_lk_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"database_name": "'bbcs'",
+										"table_name": "'csnjizj'"
+									}
+								},
+								"firstRowOnly": false
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"load_type": {
+				"type": "string"
+			},
+			"database": {
+				"type": "string"
+			},
+			"tablename": {
+				"type": "string"
+			},
+			"datasource": {
+				"type": "string"
+			},
+			"watermark": {
+				"type": "string"
+			},
+			"targetpath": {
+				"type": "string"
+			},
+			"is_active": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-02-08T09:18:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

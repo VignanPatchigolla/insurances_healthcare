@@ -1,0 +1,433 @@
+{
+	"name": "silver_layer_gold_layer",
+	"properties": {
+		"activities": [
+			{
+				"name": "silver_departments",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/departments_f"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_departments",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_departments",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/dim_department"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "silver_providers",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/providers_f"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_providers",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_providers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/dim_providers"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "silver_claims",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/Claims_extraction"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_claims",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_claims",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/dim_claims"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "silver_cpt_codes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/CPT_codes_extraction"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_CPT_codes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_cpt_codes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/dim_cpt_codes"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "silver_ICD_codes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/ICD_codes"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_ICD_codes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_ICD_codes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/dim_icd_codes"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "silver_NPI_codes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/NPI_codes"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_NPI_codes",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_NPI_codes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/dim_npi_codes"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "silver_encounters",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/encounters"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_encounters",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_encounters",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/dim_encounters"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "silver_patients",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/patients"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_patients",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_patients",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/dim_patients"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "silver_transactions",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/4. Silver Layer/transactions"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "gold_transactions",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "silver_transactions",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/healthcare_insurance/5. Gold Layer/fact_transactions"
+				},
+				"linkedServiceName": {
+					"referenceName": "databricks_ls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-02-08T11:53:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
