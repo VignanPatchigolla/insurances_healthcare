@@ -11,7 +11,7 @@ The solution follows the **Medallion Architecture**, which consists of three lay
 - **Gold Layer**: Aggregated and optimized data for analytics and reporting.  
 
 ### Data Sources  
-- **Azure SQL Database / SQL Server** (Extracted via ADF)  
+- **SQL Server** (Extracted via ADF)  
 - **APIs** (ICD, NPI extracted via Databricks)  
 - **Flat files (CSV, JSON, Parquet)** in **Azure Data Lake Storage (ADLS)**  
 
